@@ -1,0 +1,16 @@
+# Maven target folder
+/target/
+
+# IntelliJ IDEA files
+.idea/
+*.iml
+
+# VS Code files
+.vscode/
+
+# MacOS files
+.DS_Store
+__MACOSX/
+
+# Logs
+*.log
