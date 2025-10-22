@@ -88,7 +88,6 @@ After starting the app:
 | `PUT` | `/packages/{id}` | Update a package |
 | `DELETE` | `/packages/{id}` | Delete a package |
 | `GET` | `/packages` | List all packages |
-| `POST` | `/packages/price?currency=GBP` | Calculate package price in given currency |
 
 ### Example Request
 ```bash
