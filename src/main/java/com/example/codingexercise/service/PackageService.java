@@ -20,7 +20,6 @@ public class PackageService {
     private static final int MONEY_SCALE = 2;
     private static final RoundingMode RM = RoundingMode.HALF_UP;
 
-
     public PackageService(ProductServiceGateway productServiceGateway,
             ExchangeRateClient exchangeRateClient) {
         this.productServiceGateway = productServiceGateway;
@@ -31,7 +30,10 @@ public class PackageService {
     public PackageResponse createResponse(ProductPackage productPackage, String targetCurrency) {
         // Calculate total price in USD
         BigDecimal totalUsdPrice = productPackage.getProductIds().stream()
-                .map(id -> BigDecimal.valueOf(productServiceGateway.getProductById(id).usdPrice()))
+                .map(id -> {
+                    var p = productServiceGateway.getProductById(id);
+                    return p != null ? BigDecimal.valueOf(p.usdPrice()) : BigDecimal.ZERO;
+                })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         // Convert price to target currency
