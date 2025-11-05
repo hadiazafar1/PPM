@@ -13,7 +13,6 @@ public class ProductServiceGateway {
 
     private final RestTemplate restTemplate;
     private final String baseUrl; // from properties
-
     public ProductServiceGateway(RestTemplate restTemplate,
             @Value("${product.service.url}") String baseUrl) {
         this.restTemplate = restTemplate;

@@ -1,8 +1,9 @@
 package com.example.codingexercise.controller;
 
 import com.example.codingexercise.dto.PackageResponse;
+import com.example.codingexercise.dto.Product;
+import com.example.codingexercise.gateway.ProductServiceGateway;
 import com.example.codingexercise.model.ProductPackage;
-import com.example.codingexercise.repository.PackageRepository;
 import com.example.codingexercise.service.PackageService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,12 +29,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RequestMapping("/packages")
 public class PackageController {
 
-    private final PackageRepository packageRepository;
-    private final PackageService packageService;
 
-    public PackageController(PackageRepository packageRepository, PackageService packageService) {
-        this.packageRepository = packageRepository;
+    private final PackageService packageService;
+    private final ProductServiceGateway productGateway;
+
+    public PackageController(PackageService packageService,
+            ProductServiceGateway productGateway) {
         this.packageService = packageService;
+        this.productGateway = productGateway;
     }
 
     // Create a new package
@@ -43,9 +46,8 @@ public class PackageController {
     public PackageResponse createPackage(@RequestBody ProductPackage productPackage,
             @RequestParam(required = false) String currency) {
 
-        var createdRecord = packageRepository.createPackage(productPackage.getName(), productPackage.getDescription(),
-                productPackage.getProductIds());
-        return packageService.createResponse(createdRecord, currency);
+        var createdRecord = packageService.createPackage(productPackage, currency);
+        return createdRecord;
     }
 
     // Get a package by ID
@@ -53,8 +55,8 @@ public class PackageController {
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = PackageResponse.class)))
     @GetMapping("/{id}")
     public PackageResponse getPackage(@PathVariable String id, @RequestParam(required = false) String currency) {
-        var record = packageRepository.getPackage(id);
-        return packageService.createResponse(record, currency);
+        var record = packageService.getPackageById(id, currency);
+        return record;
     }
 
     // Update a package by ID
@@ -63,9 +65,8 @@ public class PackageController {
     @PutMapping("/{id}")
     public PackageResponse updatePackage(@PathVariable String id, @RequestBody ProductPackage updatedBody,
             @RequestParam(required = false) String currency) {
-        var updatedRecord = packageRepository.update(id, updatedBody.getName(), updatedBody.getDescription(),
-                updatedBody.getProductIds());
-        return packageService.createResponse(updatedRecord, currency);
+        var updatedRecord = packageService.updatePackage(id, updatedBody, currency);
+        return updatedRecord;
     }
 
     // Delete a package by ID
@@ -74,7 +75,7 @@ public class PackageController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePackage(@PathVariable String id) {
-        packageRepository.delete(id);
+        packageService.deletePackage(id);
     }
 
     // List all packages
@@ -82,10 +83,12 @@ public class PackageController {
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = PackageResponse.class)))
     @GetMapping
     public List<PackageResponse> getAllPackages(@RequestParam(required = false) String currency) {
-        var packages = packageRepository.findAll();
-        return packages.stream()
-                .map(pkg -> packageService.createResponse(pkg, currency))
-                .toList();
+        var packages = packageService.listPackages(currency);
+        return packages;
     }
 
+    @GetMapping("/products")
+    public List<Product> listProducts() {
+        return productGateway.getAllProducts();
+    }
 }
